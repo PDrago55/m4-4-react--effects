@@ -1,39 +1,113 @@
-import React from 'react';
-import styled from 'styled-components';
-
-import cookieSrc from '../cookie.svg';
+import React, { useState } from "react";
+import styled from "styled-components";
+import Item from "./Item";
+import cookieSrc from "../cookie.svg";
+import useInterval from "../hooks/use-interval.hook";
 
 const items = [
-  { id: 'cursor', name: 'Cursor', cost: 10, value: 1 },
-  { id: 'grandma', name: 'Grandma', cost: 100, value: 10 },
-  { id: 'farm', name: 'Farm', cost: 1000, value: 80 },
+  { id: "cursor", name: "Cursor", cost: 10, value: 1 },
+  { id: "grandma", name: "Grandma", cost: 100, value: 10 },
+  { id: "farm", name: "Farm", cost: 1000, value: 80 }
 ];
 
+const calculateCookiesPerTick = purchasedItems => {
+  //console.log(purchasedItems, "hELOLOLOLOLO");
+  //console.log("does it go here anywhere?");
+  let total = items.reduce((reduceTotal, item) => {
+    // console.log(purchasedItems.grandma, "PI");
+    if (purchasedItems[item.id]) {
+      return (reduceTotal += item.value * purchasedItems[item.id]);
+    }
+
+    // console.log([item.id], "____-----____");
+    // console.log(purchasedItems, "dbdhdhdfdsjkakjdashdksj");
+    // console.log(items, "ITEM");
+    // console.log(
+    //   (total += item.value * purchasedItems[item.id]),
+    //   "xxxxxxXxxxxxX"
+    // );
+    //console.log(total, "WHAT THE FUCK?");
+
+    // console.log(typeof reduceTotal, reduceTotal);
+
+    return reduceTotal + item.value * purchasedItems[item.id];
+  });
+  // console.log(typeof NaN);
+  //console.log(total, "TOTAL");
+  return total;
+};
+
 const Game = () => {
-  // TODO: Replace this with React state!
-  const numCookies = 100;
-  const purchasedItems = {
+  const [numCookies, setNumCookies] = useState(10000);
+
+  const [purchasedItems, setPurchasedItems] = useState({
     cursor: 0,
     grandma: 0,
-    farm: 0,
-  };
+    farm: 0
+  });
 
+  React.useEffect(() => {
+    const handleKeyDown = ev => {
+      if (ev.code === "Space") HandleClick();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
+
+  function HandleClick() {
+    setNumCookies(numCookies + 1);
+    document.title = `${numCookies}Fuck u`;
+    console.log("CLICK HERE?");
+  }
+
+  useInterval(() => {
+    const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
+    let x = numOfGeneratedCookies + purchasedItems.total;
+    // console.log(x, "TEST  XXXXXX", purchasedItems.total, "PURCHASEDITEMS");
+  }, 1000);
+  function handlePoints(item) {
+    // console.log("button-HIT", item.id);
+    if (numCookies >= item.cost) {
+      setNumCookies(numCookies - item.cost);
+      setPurchasedItems({
+        ...purchasedItems,
+        [item.id]: purchasedItems[item.id] + 1
+      });
+      // console.log(purchasedItems, "");
+    } else {
+      alert("You Dont Got ENOUGH MONEY");
+    }
+  }
   return (
     <Wrapper>
       <GameArea>
         <Indicator>
           <Total>{numCookies} cookies</Total>
           {/* TODO: Calcuate the cookies per second and show it here: */}
-          <strong>0</strong> cookies per second
+          <strong>{calculateCookiesPerTick(purchasedItems)}</strong> cookies per
+          second
         </Indicator>
-        <Button>
+        <Button onClick={HandleClick}>
           <Cookie src={cookieSrc} />
         </Button>
       </GameArea>
-
       <ItemArea>
         <SectionTitle>Items:</SectionTitle>
-        {/* TODO: Add <Item> instances here, 1 for each item type. */}
+        {items.map(item => {
+          return (
+            <Item
+              key={item.id}
+              itemId={item.id}
+              name={item.name}
+              value={item.value}
+              cost={item.cost}
+              purchased={purchasedItems[item.id]}
+              handlePoints={() => handlePoints(item)}
+            />
+          );
+        })}
       </ItemArea>
     </Wrapper>
   );

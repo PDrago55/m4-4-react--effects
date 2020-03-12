@@ -50,7 +50,7 @@ React offers another way: `useRef`
 
 ```js live=true
 const Form = () => {
-  const firstNameRef = React.useRef(null);
+  const firstNameRef = React.useRef(null);// this creates an object.. with a key of current.
 
   React.useEffect(() => {
     firstNameRef.current.focus();
@@ -60,7 +60,7 @@ const Form = () => {
     <>
       <label>
         First Name
-        <input ref={firstNameRef} />
+        <input ref={firstNameRef} /> //useRef gets used here as an attribute//
       </label>
       <br />
       <label>
@@ -98,15 +98,17 @@ Use `useRef`
 
 ```js
 const ConfirmButton = () => {
+  const btn = React.useRef(null);
+
   React.useEffect(() => {
-    const btn = document.getElementById('confirm-button');
 
     if (btn) {
-      btn.focus();
+      btn.current.focus();
     }
   }, []);
 
-  return <button id="confirm-button">Confirm</button>;
+  return <button ref={btn}>Confirm
+  </button>;
 };
 ```
 

@@ -71,6 +71,9 @@ React.useEffect(() => {
 It takes a "dependencies" array
 
 ```js
+const [someState, setSomeState] = useState('')
+const [someOtherState, setsomeOtherState] = useState('')
+
 React.useEffect(() => {
     console.log('some state changed!')
 }, [someState, someOtherState]);
@@ -121,11 +124,6 @@ You _definitely_ don't want to do this in every render
 const App = () => {
   const [cart, setCart] = React.useState({});
 
-  fetch('some-url')
-    .then(data => {
-      console.log('Got data:', data);
-      setCart(data);
-    })
 
   React.useEffect(() => {
       fetch('some-url')
@@ -135,7 +133,7 @@ const App = () => {
         });
     
       return JSON.stringify(cart, null, 2);
-  }, [cart]);
+  }, []);
   
   // ...
 }
@@ -165,7 +163,20 @@ const App = () => {
     </button>
   );
 }
+/// using 'useEffect hooks'
+const App = () => {
+  const [count, setCount] = React.useState(0);
+  React.useEffect(()=> {
+  document.title = `You have clicked ${count} times`;}, [count]);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Increment
+    </button>
+  );
+}
 ```
+
+
 
 ---
 
@@ -173,8 +184,13 @@ const App = () => {
 const App = ({ color }) => {
   const [value, setValue] = React.useState(false);
 
+  React.useEffect(() => {
   window.localStorage.setItem('value', value);
+  }, [value])
+
+  React.useEffect(() => {
   window.localStorage.setItem('color', color);
+  }, [color])
 
   return (
     <div>
@@ -191,12 +207,13 @@ const App = ({ color }) => {
 
 ```js
 const Modal = ({ handleClose }) => {
-  window.addEventListener('keydown', (ev) => {
-    if (ev.code === 'Escape') {
-      handleClose();
-    }
-  });
-
+  React.useEffect(() => {
+    window.addEventListener('keydown', (ev) => {
+      if (ev.code === 'Escape') {
+        handleClose();
+      }
+    });
+   }; [])
   return (
     <div>
       Modal stuff
@@ -314,13 +331,17 @@ Make sure to do the appropriate cleanup work
 ```js
 // seTimeout is similar to setInterval...
 const App = () => {
-  React.useEffect(() => {
-    window.setTimeout(() => {
+  const timerTofu =  window.setTimeout(() => {
       console.log('1 second after update!')
-    });
-  }, [])
+    }, time);
 
-  return null;
+  React.useEffect(() => {
+   timerTofu(1000)
+    return () => {
+    window.clearTimeout(timerTofu)
+}
+  }, [])
+  return null
 }
 ```
 
@@ -328,10 +349,15 @@ const App = () => {
 
 ```js
 const App = () => {
+  const keyEvent = (ev) => { 
+    console.log('You pressed: ' + ev.code)
+    }
   React.useEffect(() => {
-    window.addEventListener('keydown', (ev) => {
-      console.log('You pressed: ' + ev.code);
-    })
+    window.addEventListener('keydown', keyEvent)
+
+    return () => {
+      window.removeEventListener('keydown', keyEvent);
+    }
   }, [])
 
   return null;
@@ -341,6 +367,7 @@ const App = () => {
 ---
 
 # Custom hooks
+when you start with ***use*** React knows you are using hooks!!
 
 React hooks are powerful because we can _compose them_.
 
@@ -403,6 +430,33 @@ const App = ({ path }) => {
 
 ```js
 // refactoring time...
+const useMousePos = () => {
+const [mousePosition, setMousePosition] = 
+useState({
+    x: null,
+    y: null
+  });
+    React.useEffect(() => {
+    const handleMousemove = (ev) => {
+      setMousePosition({ x: ev.clientX, y: ev.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMousemove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMousemove)
+    }
+  }, []);
+  return mousePosition
+  }
+  const App = ({ path }) => {
+    const mousePosition = useMousePos();
+    return (
+      <div>
+      The mouse is at {mousePosition.x}, {mousePosition.y}
+      </div>
+    )
+  }
 
 ```
 </div>
@@ -417,17 +471,20 @@ Extract a custom hook
 ---
 
 ```js
-const App = ({ path }) => {
+const useData = (path) => {
   const [data, setData] = React.useState(null);
-
-  React.useEffect(() => {
+    React.useEffect(() => {
     fetch(path)
       .then(res => res.json())
-      .then(json => {
-        setData(json);
+      .then(newData => {
+        setData(newData);
+        return data
       })
   }, [path])
+}
 
+const App = ({ path }) => {
+  let data = useData(path)
   return (
     <span>
       Data: {JSON.stringify(data)}

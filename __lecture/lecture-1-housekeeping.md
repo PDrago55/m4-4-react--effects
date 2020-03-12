@@ -32,12 +32,12 @@ Cannot call hooks from anywhere\*
 ```js
 // 🙅‍♀️ in a function, not a component:
 const getData = () => {
-  const [data, setData] = React.useState(null);
 
   return data;
 };
 
 const App = () => {
+    const [data, setData] = React.useState(null);
   const data = getData();
   return <div>{data.name}</div>;
 };
@@ -74,9 +74,8 @@ Fix the following state hooks
 
 ```js
 const Button = ({ type, children }) => {
+     const [color, setColor] = React.useState('red');
   if (type === 'primary') {
-    const [color, setColor] = React.useState('red');
-
     return (
       <button
         style={{ color }}
