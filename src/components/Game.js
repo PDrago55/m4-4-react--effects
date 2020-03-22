@@ -11,29 +11,14 @@ const items = [
 ];
 
 const calculateCookiesPerTick = purchasedItems => {
-  //console.log(purchasedItems, "hELOLOLOLOLO");
-  //console.log("does it go here anywhere?");
+  console.log(purchasedItems, "purchased items");
+  let sum = 0;
   let total = items.reduce((reduceTotal, item) => {
-    // console.log(purchasedItems.grandma, "PI");
-    if (purchasedItems[item.id]) {
-      return (reduceTotal += item.value * purchasedItems[item.id]);
-    }
-
-    // console.log([item.id], "____-----____");
-    // console.log(purchasedItems, "dbdhdhdfdsjkakjdashdksj");
-    // console.log(items, "ITEM");
-    // console.log(
-    //   (total += item.value * purchasedItems[item.id]),
-    //   "xxxxxxXxxxxxX"
-    // );
-    //console.log(total, "WHAT THE FUCK?");
-
-    // console.log(typeof reduceTotal, reduceTotal);
-
-    return reduceTotal + item.value * purchasedItems[item.id];
+    sum += item.value * purchasedItems[item.id];
+    console.log(sum, "SUM IS HERE");
+    return sum;
   });
-  // console.log(typeof NaN);
-  //console.log(total, "TOTAL");
+  console.log(total, "this is total");
   return total;
 };
 
@@ -64,7 +49,9 @@ const Game = () => {
 
   useInterval(() => {
     const numOfGeneratedCookies = calculateCookiesPerTick(purchasedItems);
-    let x = numOfGeneratedCookies + purchasedItems.total;
+    setNumCookies(numOfGeneratedCookies + numCookies);
+    // console.log(numOfGeneratedCookies)
+    // let x = numOfGeneratedCookies + purchasedItems.total;
     // console.log(x, "TEST  XXXXXX", purchasedItems.total, "PURCHASEDITEMS");
   }, 1000);
   function handlePoints(item) {
