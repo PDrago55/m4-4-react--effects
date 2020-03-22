@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 function useInterval(callback, delay) {
   const savedCallback = React.useRef();
@@ -18,6 +18,7 @@ function useInterval(callback, delay) {
       return () => clearInterval(id);
     }
   }, [delay]);
+  console.log(typeof savedCallback.current, "WE HERE?, use-interval-hook");
 }
 
 export default useInterval;

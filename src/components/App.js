@@ -13,7 +13,7 @@ function App(props) {
         <Route exact path="/">
           <Home />
         </Route>
-        <Route path="/game">
+        <Route exact path="/game">
           <Game />
         </Route>
       </Router>
